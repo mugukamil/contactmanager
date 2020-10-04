@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { Consumer } from "../../Context";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 class Contact extends Component {
   static propTypes = {
@@ -38,10 +39,20 @@ class Contact extends Component {
                 onClick={this.onShowClick}
                 style={{ cursor: "pointer" }}
               ></i>
+              <Link
+                to={`contact/edit/${id}`}
+                style={{
+                  cursor: "pointer",
+                  marginLeft: "auto",
+                  marginRight: "1em",
+                }}
+              >
+                <i className="fas fa-pencil-alt"></i>
+              </Link>
               <i
                 className="fas fa-times"
                 onClick={this.onDeleteClick.bind(this, dispatch, id)}
-                style={{ cursor: "pointer", marginLeft: "auto", color: "red" }}
+                style={{ cursor: "pointer", color: "red" }}
               ></i>
             </h4>
             {this.state.isInfoShown ? (
