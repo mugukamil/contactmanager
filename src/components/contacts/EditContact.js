@@ -1,45 +1,64 @@
-import React, { Component } from "react";
-import { Consumer } from "../../Context";
+import React, { useState, useContext, useEffect } from "react";
+import { Context } from "../../Context";
 import TextInputGroup from "../layout/TextInputGroup";
 import axios from "axios";
+import useInput from "../hooks/useInput";
 
-class EditContact extends Component {
-  state = {
-    name: "",
-    email: "",
-    phone: "",
-    errors: {},
-  };
+export default function EditContact(props) {
+  const store = useContext(Context);
+  const { dispatch } = store;
+  const {
+    value: name,
+    setValue: setName,
+    reset: resetName,
+    bind: bindName,
+  } = useInput("");
+  const {
+    value: phone,
+    setValue: setPhone,
+    reset: resetPhone,
+    bind: bindPhone,
+  } = useInput("");
+  const {
+    value: email,
+    setValue: setEmail,
+    reset: resetEmail,
+    bind: bindEmail,
+  } = useInput("");
+  const [errors, setErrors] = useState({});
 
-  async componentDidMount() {
-    const { id } = this.props.match.params;
-    const { data } = await axios.get(
-      `https://jsonplaceholder.typicode.com/users/${id}`
-    );
+  useEffect(() => {
+    async function fetchContact() {
+      const { id } = props.match.params;
+      const { data } = await axios.get(
+        `https://jsonplaceholder.typicode.com/users/${id}`
+      );
 
-    this.setState({ name: data.name, email: data.email, phone: data.phone });
-  }
+      setName(data.name);
+      setPhone(data.phone);
+      setEmail(data.email);
+    }
+    fetchContact();
+  }, [setName, setPhone, setEmail, props.match.params]);
 
-  onChange = (evt) => this.setState({ [evt.target.name]: evt.target.value });
-
-  onSubmit = async (dispatch, evt) => {
+  const onSubmit = async (evt) => {
     evt.preventDefault();
-    const { name, email, phone } = this.state;
-    if (!name.length) {
-      this.setState({ errors: { name: "Name is required" } });
-      return;
-    }
-    if (!email.length) {
-      this.setState({ errors: { email: "Name is required" } });
+    if (name === "") {
+      setErrors({ ...errors, name: "Name is required" });
       return;
     }
 
-    if (!phone.length) {
-      this.setState({ errors: { phone: "Phone is required" } });
+    if (email === "") {
+      setErrors({ ...errors, email: "Email is required" });
       return;
     }
 
-    const { id } = this.props.match.params;
+    if (phone === "") {
+      setErrors({ ...errors, phone: "Phone is required" });
+      return;
+    }
+
+    const { id } = props.match.params;
 
     const res = await axios.put(
       `https://jsonplaceholder.typicode.com/users/${id}`,
@@ -48,57 +67,45 @@ class EditContact extends Component {
 
     dispatch({ type: "UPDATE_CONTACT", payload: res.data });
 
-    this.setState({ name: "", email: "", phone: "", errors: {} });
-    this.props.history.push("/");
+    resetName();
+    resetPhone();
+    resetEmail();
+    setErrors({});
+    props.history.push("/");
   };
 
-  render() {
-    const { name, email, phone, errors } = this.state;
-    return (
-      <Consumer>
-        {({ dispatch }) => (
-          <div className="card mb-3">
-            <div className="card-header">Edit Contact</div>
-            <form
-              className="card-body"
-              onSubmit={this.onSubmit.bind(this, dispatch)}
-            >
-              <TextInputGroup
-                label="Name"
-                name="name"
-                value={name}
-                placeholder="Enter name"
-                onChange={this.onChange}
-                error={errors.name}
-              ></TextInputGroup>
-              <TextInputGroup
-                label="Email"
-                name="email"
-                type="email"
-                value={email}
-                placeholder="Enter email"
-                onChange={this.onChange}
-                error={errors.email}
-              ></TextInputGroup>
-              <TextInputGroup
-                label="Phone"
-                name="phone"
-                type="tel"
-                value={phone}
-                placeholder="Enter phone"
-                onChange={this.onChange}
-                error={errors.phone}
-              ></TextInputGroup>
+  return (
+    <div className="card mb-3">
+      <div className="card-header">Edit Contact</div>
+      <form className="card-body" onSubmit={onSubmit}>
+        <TextInputGroup
+          label="Name"
+          name="name"
+          placeholder="Enter name"
+          error={errors.name}
+          {...bindName}
+        ></TextInputGroup>
+        <TextInputGroup
+          label="Email"
+          name="email"
+          type="email"
+          placeholder="Enter email"
+          error={errors.email}
+          {...bindEmail}
+        ></TextInputGroup>
+        <TextInputGroup
+          label="Phone"
+          name="phone"
+          type="tel"
+          placeholder="Enter phone"
+          error={errors.phone}
+          {...bindPhone}
+        ></TextInputGroup>
 
-              <button type="submit" className="btn btn-light btn-block">
-                Update Contact
-              </button>
-            </form>
-          </div>
-        )}
-      </Consumer>
-    );
-  }
+        <button type="submit" className="btn btn-light btn-block">
+          Update Contact
+        </button>
+      </form>
+    </div>
+  );
 }
-
-export default EditContact;

@@ -1,24 +1,20 @@
-import React from "react";
+import React, { Fragment, useContext, useEffect } from "react";
 import Contact from "./Contact";
-import { Consumer } from "../../Context";
+import { Context } from "../../Context";
+import axios from "axios";
 
-class Contacts extends React.Component {
-  render() {
-    return (
-      <Consumer>
-        {({ contacts }) => (
-          <>
-            <h1 className="display-4 mb-2">
-              <span className="text-danger">Contact</span> List
-            </h1>
-            {contacts.map((c) => (
-              <Contact key={c.id} contact={c}></Contact>
-            ))}
-          </>
-        )}
-      </Consumer>
-    );
-  }
+export default function Contacts() {
+  const store = useContext(Context);
+  const { state, dispatch } = store;
+
+  return (
+    <Fragment>
+      <h1 className="display-4 mb-2">
+        <span className="text-danger">Contact</span> List
+      </h1>
+      {state.contacts?.map((c) => (
+        <Contact key={c.id} contact={c}></Contact>
+      ))}
+    </Fragment>
+  );
 }
-
-export default Contacts;

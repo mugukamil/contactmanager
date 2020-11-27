@@ -3,7 +3,7 @@ import "./App.css";
 import Header from "./components/layout/Header";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Contacts from "./components/contacts/Contacts";
-import { Provider } from "./Context";
+import { StateProvider } from "./Context";
 import AddContact from "./components/contacts/AddContact";
 import { HashRouter as Router, Route, Switch } from "react-router-dom";
 import About from "./components/pages/About";
@@ -13,7 +13,7 @@ import EditContact from "./components/contacts/EditContact";
 
 function App() {
   return (
-    <Provider>
+    <StateProvider>
       <Router>
         <div className="App">
           <Header></Header>
@@ -33,7 +33,7 @@ function App() {
           </div>
         </div>
       </Router>
-    </Provider>
+    </StateProvider>
   );
 }
 
